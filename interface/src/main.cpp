@@ -1,5 +1,13 @@
 #include <cmath>
+#include <iostream>
 #include <random>
+
+#define WIN32_LEAN_AND_MEAN
+#define VC_EXTRALEAN
+#define NOGDI
+#define NOUSER
+
+#include <windows.h>
 
 #include "raylib.h"
 
@@ -98,11 +106,28 @@ float Player::getScore(Vector2 targetPos, float targetSize) {
     return difference * 10;
 }
 
+HANDLE establish_pipe_connection() {
+    std::cout << "Connecting pipe...\n";
+    HANDLE pipe = CreateFile(R"(\\.\pipe\target-ai)", GENERIC_ALL,
+                             FILE_SHARE_READ | FILE_SHARE_WRITE, NULL,
+                             OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+
+    if (pipe == INVALID_HANDLE_VALUE) {
+        std::cout << "Failed to connect to pipe\n";
+        system("pause");
+        exit(1);
+    }
+
+    std::cout << "Pipe connected succesfully.\n";
+    return pipe;
+}
+
 int main() {
     Player player =
         Player((float)SCREEN_WIDTH / 2, (float)SCREEN_HEIGHT / 2, PLAYERSIZE);
 
     Target target = Target(TARGET_SIZE);
+    HANDLE pipe = establish_pipe_connection();
 
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Path Finding AI");
     SetTargetFPS(60);
