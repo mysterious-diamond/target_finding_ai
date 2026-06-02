@@ -1,3 +1,0 @@
--IC:\raylib\w64devkit\include
--D_WIN32
--DWIN32
